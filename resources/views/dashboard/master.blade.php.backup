@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            DFet - Dashboard
+        </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+        {{ Html::style('css/bootstrap.css') }}
+        {{ Html::style('css/style.default.css') }}
+        {{ Html::style('css/dataTables.responsive.css') }}
+        {{ Html::style('css/dataTables.bootstrap.css') }}
+        {{ Html::style('css/select2.css') }}
+        {{ Html::style('css/style.calendar.css') }}
+        {{ Html::style('css/datepicker3.css') }}
+
+    </head>
+
+    <body class="pace-done">
+
+    <header>
+            <div class="headerwrapper">
+                <div class="header-left">
+                    <a href="/" class="logo">
+                       D-FET Frontend
+                    </a>
+                    <div class="pull-right">
+                        <a href="#" class="menu-collapse">
+                            <i class="fa fa-bars"></i>
+                        </a>
+                    </div>
+                </div><!-- header-left -->
+                <div class="header-right">
+                    <div class="logo">
+                        <img src="/images/SU_logo_NEG_ENGELSK.png" style="width: 100%; max-height: 100%">
+                    </div>
+                    
+                </div><!-- header-right -->
+                
+                <div class="pull-right">
+                    
+                    <div class="btn-group btn-group-option">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                          <i class="fa fa-caret-down"></i>
+                        </button>
+                        <ul class="dropdown-menu pull-right" role="menu">
+                          <li><a href="/users/profile/{{Session::get('user')->id }}"><i class="glyphicon glyphicon-user"></i> My Profile</a></li>
+                          <li><a href="/users/settings/{{Session::get('user')->id }}"><i class="glyphicon glyphicon-cog"></i> Account Settings</a></li>
+                          <li><a href="#"><i class="glyphicon glyphicon-question-sign"></i> Help</a></li>
+                          <li class="divider"></li>
+                          <li><a href="/logout"><i class="glyphicon glyphicon-log-out"></i>Sign Out</a></li>
+                        </ul>
+                    </div><!-- btn-group -->
+                    
+                </div><!-- pull-right -->
+            </div><!-- headerwrapper -->
+        </header>
+        
+        <section>
+            <div class="mainwrapper">
+                <div class="leftpanel">
+                    <div class="media profile-left">
+                        <a class="pull-left" href="/users/profile/{{Session::get('user')->id }}">
+                            <img src="{{ isset(Session::get('user')->avatar) ? '/uploads/avatars/'.Session::get('user')->avatar : '/images/default_avatar.png' }}" class="img-circle img-offline img-responsive img-avatar" alt="">
+                        </a>
+                        <div class="media-body">
+                            <a href="/users/profile/{{Session::get('user')->id }}"><h4 class="media-heading">{{Session::get('user')->first_name.' '.Session::get('user')->last_name}}</h4></a>
+                            <small class="text-muted">Last login:<br/> {{ Carbon::createFromTimestamp(strtotime(Session::get('user')->last_login))->diffForHumans() }}</small>
+                        </div>
+                    </div><!-- media -->
+                    
+                    <h5 class="leftpanel-title">Navigation</h5>
+                    <ul class="nav nav-pills nav-stacked">
+                        <li><a href="/"><i class="fa fa-home"></i> <span>Dashboard</span></a></li>
+                        @if(Sentinel::getUser()->hasAccess('admin'))
+                            <li class="parent"><a href="#"><i class="fa fa-users"></i> <span>Users</span></a>
+                                <ul class="nav children">
+                                    <li><a href="/users"><i class="fa fa-users"></i> Users</a></li>
+                                    <li><a href="/users/new"><i class="fa fa-plus"></i> New user</a></li>
+                                </ul>
+                            </li>
+                        @endif
+                        @if(Sentinel::getUser()->hasAccess('admin'))
+                            <li><a href="/calendar"><i class="fa fa-calendar"></i> <span>Calendar</span></a></li>
+                        @else 
+                            <li><a href="/calendar/user"><i class="fa fa-calendar"></i> <span>Calendar</span></a></li>
+                        @endif
+                        @if(Sentinel::getUser()->hasAccess('admin'))
+                        <li class="parent"><a href="#">
+                            @if ($enrollreviews) <span class="pull-right badge" style="margin-right:20px">{{$enrollreviews}}</span>
+                            @endif
+                            <i class="fa fa-suitcase"></i> <span>Courses</span></a>
+                            <ul class="nav children">
+                                <li><a href="/courses"><i class="fa fa-suitcase"></i> Courses</a></li>
+                                <li><a href="/courses/new"><i class="fa fa-plus"></i> New course</a></li>
+                                <li><a href="/courses/enroll"><i class="fa fa-user"></i> User enrollment</a></li>
+                                <!--li><a href="/courses/list">List Courses</a></li-->
+                            </ul>
+                        </li>
+                        @else
+                            <li><a href="/courses/list"><i class="fa fa-suitcase"></i> <span>Courses</span></a></li>
+                        @endif
+                        @if(Sentinel::getUser()->hasAccess('admin'))
+                            <li class="parent"><a href="#"><i class="glyphicon glyphicon-hdd"></i> <span>Virtual Machines</span></a>
+                                <ul class="nav children">
+                                    <li><a href="/vmachines"><i class="glyphicon glyphicon-hdd"></i> Virtual Machines</a></li>
+                                    <li><a href="/vmachines/new"><i class="fa fa-plus"></i> New Virtual</a></li>
+                                    <li><a href="/vmachines/log" data-toggle="modal" data-target="#serverLog"><i class="fa fa-plus"></i> Backend log</a></li>
+                                </ul>
+                            </li>
+                        @endif
+                        @if(Sentinel::getUser()->hasAccess('admin'))
+                            <li class="parent"><a href="#"><i class="fa fa-edit"></i> <span>Assignments</span></a>
+                                <ul class="nav children">
+                                        <li><a href="/assignments"><i class="fa fa-edit"></i> Assignments</a></li>
+                                        <li><a href="/assignments/new"><i class="fa fa-plus"></i> New Assignment</a></li>
+                                        <!--li><a href="/assignments/list">List Assignments</a></li-->
+                                    </ul>
+                            </li>
+                        @else
+                            <li><a href="/assignments/list"><i class="fa fa-edit"></i> <span>Assignments</span></a></li>
+                        @endif
+                    </ul>
+                    
+                </div><!-- leftpanel -->
+                
+                <!-- Content -->
+                @yield('content')
+                
+            </div><!-- mainwrapper -->
+        </section>
+
+        {{ HTML::script('js/jquery-1.11.1.min.js') }}
+        {{ HTML::script('js/bootstrap.min.js') }}
+        
+        {{ HTML::script('js/custom.js')}}
+        {{ HTML::script('js/dashboard.js')}}
+        {{ HTML::script('js/alert.js')}}
+        {{ HTML::script('js/select2.js')}}
+        {{ HTML::script('js/moment.min.js')}}
+
+        {{ HTML::script('js/jquery.dataTables.min.js')}}
+        {{ HTML::script('js/dataTables.bootstrap.js')}}
+        {{ HTML::script('js/dataTables.responsive.js')}}
+
+        {{ HTML::script('js/typeahead.js')}}
+
+        <!-- View Scripts -->
+        @yield('scripts')
+
+        <script>
+            jQuery(document).ready(function(){
+
+                // Remove active for all items.
+                $('.page-sidebar-menu li').removeClass('active');
+                // highlight submenu item
+                $('li a[href="' + this.location.pathname + '"]').parent().addClass('active');
+                // Highlight parent menu item.
+                $('ul a[href="' + this.location.pathname + '"]').parents('li').addClass('active');
+                
+                jQuery('#basicTable').DataTable({
+                    responsive: true
+                });
+                
+                // Validation with select boxes
+                jQuery("#activated, #group, #status, #vmachine, #permission").select2({
+                    minimumResultsForSearch: -1
+                });
+
+                var users = new Bloodhound({
+                  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+                  queryTokenizer: Bloodhound.tokenizers.whitespace,
+                  remote: '/search/user/%QUERY'
+                });
+
+                var courses = new Bloodhound({
+                  datumTokenizer: Bloodhound.tokenizers.obj.whitespace('course'),
+                  queryTokenizer: Bloodhound.tokenizers.whitespace,
+                  remote: '/search/course/%QUERY'
+                });
+                 
+                users.initialize();
+                courses.initialize();
+                 
+                $('.name').typeahead(null, {
+                  name: 'users',
+                  displayKey: 'name',
+                  source: users.ttAdapter()
+                });
+
+                $('.course').typeahead(null, {
+                  name: 'courses',
+                  displayKey: 'course',
+                  source: courses.ttAdapter()
+                });
+
+                $(document).ready(function() {
+
+                  // Match to Bootstraps data-toggle for the modal
+                  // and attach an onclick event handler
+                  $('a[data-toggle="modal"]').on('click', function(e) {
+
+                    // From the clicked element, get the data-target arrtibute
+                    // which BS3 uses to determine the target modal
+                    var target_modal = $(e.currentTarget).data('target');
+                    // also get the remote content's URL
+                    var remote_content = e.currentTarget.href;
+
+                    // Find the target modal in the DOM
+                    var modal = $(target_modal);
+                    // Find the modal's <div class="modal-body"> so we can populate it
+                    var modalBody = $(target_modal + ' .modal-body');
+
+                    // Capture BS3's show.bs.modal which is fires
+                    // immediately when, you guessed it, the show instance method
+                    // for the modal is called
+                    modal.on('show.bs.modal', function () {
+                            // use your remote content URL to load the modal body
+                            modalBody.load(remote_content);
+                        }).modal();
+                        // and show the modal
+
+                    // Now return a false (negating the link action) to prevent Bootstrap's JS 3.1.1
+                    // from throwing a 'preventDefault' error due to us overriding the anchor usage.
+                    return false;
+                  });
+                });
+                    
+            });
+            
+        </script>
+
+        <div class="modal fade" id="serverLog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel">Server log</h4>
+              </div>
+              <div class="modal-body">
+                
+              </div>
+            </div>
+          </div>
+        </div>
+
+    </body>
+</html>
